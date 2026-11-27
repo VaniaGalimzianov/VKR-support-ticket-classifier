@@ -1,0 +1,30 @@
+digraph G {
+
+graph [bgcolor="white", fontname="DejaVu Sans", fontsize=18, labelloc="t", pad="0.35", nodesep="0.45", ranksep="0.65", splines=ortho];
+node [fontname="DejaVu Sans", fontsize=12, style="filled", fillcolor="#F6F8FA", color="#52606D", fontcolor="#172B4D", penwidth=1.4, margin="0.18,0.12"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#52606D", fontcolor="#344563", penwidth=1.25, arrowsize=0.8];
+
+
+rankdir=LR; label="Рисунок 3 — UML Use Case. Функции системы и роли пользователей";
+node [shape=ellipse, style="filled", fillcolor="#F6F8FA", width=2.5, height=0.65];
+edge [dir=none];
+subgraph cluster_system {
+  label="Интеллектуальный сервис анализа обращений"; color="#52606D"; penwidth=1.5; style="rounded"; fontsize=14;
+  uc1 [label="Создать обращение"];
+  uc2 [label="Просмотреть статус\nи результат классификации"];
+  uc3 [label="Просмотреть очередь заявок"];
+  uc4 [label="Подтвердить или изменить\nкатегорию и назначение"];
+  uc5 [label="Искать и фильтровать\nисторию обращений"];
+  uc6 [label="Управлять категориями, маршрутами\nи доступом к очередям"];
+  uc7 [label="Настроить порог уверенности\nи активную версию модели"];
+  uc8 [label="Просматривать журнал\nаудита"];
+}
+node [shape=plaintext, style="", fillcolor="white", width=1.2, height=1.2, fontsize=11];
+requester [label="  O  \n /|\\\n / \\\nПользователь"];
+agent [label="  O  \n /|\\\n / \\\nСпециалист"];
+admin [label="  O  \n /|\\\n / \\\nАдминистратор"];
+requester -> uc1; requester -> uc2;
+agent -> uc3; agent -> uc4; agent -> uc5; agent -> uc2;
+admin -> uc6; admin -> uc7; admin -> uc8; admin -> uc5;
+
+}

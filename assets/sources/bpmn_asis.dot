@@ -1,0 +1,27 @@
+digraph G {
+
+graph [bgcolor="white", fontname="DejaVu Sans", fontsize=18, labelloc="t", pad="0.35", nodesep="0.45", ranksep="0.65", splines=ortho];
+node [fontname="DejaVu Sans", fontsize=12, style="filled", fillcolor="#F6F8FA", color="#52606D", fontcolor="#172B4D", penwidth=1.4, margin="0.18,0.12"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#52606D", fontcolor="#344563", penwidth=1.25, arrowsize=0.8];
+
+
+rankdir=TB; label="Рисунок 1 — BPMN AS-IS. Ручная обработка обращения без интеллектуального сервиса";
+node [shape=box, style="rounded,filled", fillcolor="#F6F8FA"];
+start [shape=circle, label="", width=0.38, height=0.38, fixedsize=true, fillcolor="#FFFFFF", xlabel="Начало"];
+submit [label="Пользователь отправляет\nобращение по почте / в чат"];
+read [label="Специалист вручную\nчитает текст обращения"];
+known [shape=diamond, style="filled", width=1.5, height=0.9, label="Данных\nдостаточно?", fillcolor="#FFF4D6"];
+clarify [label="Запросить у пользователя\nдополнительные сведения"];
+add [label="Пользователь уточняет\nописание проблемы"];
+classify [label="Специалист определяет\nкатегорию по опыту"];
+create [label="Создать / заполнить\nкарточку обращения вручную"];
+queue [label="Выбрать ответственную\nгруппу и передать заявку"];
+end [shape=doublecircle, label="", width=0.42, height=0.42, fixedsize=true, fillcolor="#FFFFFF", xlabel="Передано в работу"];
+start -> submit -> read -> known;
+{rank=same; clarify; classify;}
+known -> clarify [label="Нет"];
+clarify -> add -> read;
+known -> classify [label="Да"];
+classify -> create -> queue -> end;
+
+}

@@ -1,0 +1,38 @@
+digraph G {
+
+graph [bgcolor="white", fontname="DejaVu Sans", fontsize=18, labelloc="t", pad="0.35", nodesep="0.45", ranksep="0.65", splines=ortho];
+node [fontname="DejaVu Sans", fontsize=12, style="filled", fillcolor="#F6F8FA", color="#52606D", fontcolor="#172B4D", penwidth=1.4, margin="0.18,0.12"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#52606D", fontcolor="#344563", penwidth=1.25, arrowsize=0.8];
+
+
+rankdir=TB; label="Рисунок 2 — BPMN TO-BE. Автоматизированная классификация с ручной проверкой исключений";
+node [shape=box, style="rounded,filled", fillcolor="#F6F8FA"];
+start [shape=circle, label="", width=0.38, height=0.38, fixedsize=true, fillcolor="#FFFFFF", xlabel="Начало"];
+submit [label="Пользователь отправляет\nобращение через форму"];
+validate [label="Проверить обязательные поля\nи длину текста"];
+reject [label="Вернуть понятную ошибку\nи запросить исправление", fillcolor="#FDECEC"];
+store [label="Создать карточку со статусом\nNEW / CLASSIFYING"];
+prep [label="Нормализовать текст;\nзамаскировать ПДн для модели"];
+model [label="Получить категорию, confidence,\ntop-k и версию модели", fillcolor="#EAF2FF"];
+save [label="Сохранить предсказание\nи параметры модели"];
+gate [shape=diamond, style="filled", width=2.05, height=1.2, label="confidence ≥ τ\nи правило активно?", fillcolor="#FFF4D6"];
+auto [label="По правилу категории\nназначить очередь"];
+manual [label="Поместить в очередь\nручной классификации", fillcolor="#FFF4D6"];
+review [label="Специалист проверяет\nи при необходимости исправляет"];
+record [label="Сохранить итоговую категорию,\nназначение и автора изменения"];
+notify [label="Показать пользователю ID,\nстатус и категорию"];
+end [shape=doublecircle, label="", width=0.42, height=0.42, fixedsize=true, fillcolor="#FFFFFF", xlabel="Заявка в работе"];
+start -> submit -> validate;
+{rank=same; auto; manual;}
+validate -> store [label="Корректно"];
+validate -> reject [label="Ошибка"];
+reject -> submit [style=dashed, label="Повторить"];
+store -> prep -> model -> save -> gate;
+gate -> auto [label="Да"];
+gate -> manual [label="Нет"];
+model -> manual [style=dashed, label="Ошибка модели"];
+auto -> review;
+manual -> review;
+review -> record -> notify -> end;
+
+}
