@@ -1,0 +1,32 @@
+digraph G {
+
+graph [bgcolor="white", fontname="DejaVu Sans", fontsize=18, labelloc="t", pad="0.35", nodesep="0.45", ranksep="0.65", splines=ortho];
+node [fontname="DejaVu Sans", fontsize=12, style="filled", fillcolor="#F6F8FA", color="#52606D", fontcolor="#172B4D", penwidth=1.4, margin="0.18,0.12"];
+edge [fontname="DejaVu Sans", fontsize=10, color="#52606D", fontcolor="#344563", penwidth=1.25, arrowsize=0.8];
+
+
+rankdir=LR; label="Рисунок 4 — C4 Container. Предлагаемая архитектура сервиса";
+node [shape=box, style="rounded,filled", fillcolor="#EAF2FF", width=2.35];
+requester [shape=plaintext, label="Пользователь\nсоздаёт и отслеживает\nобращение"];
+agent [shape=plaintext, label="Специалист поддержки\nпроверяет очередь\nи исправляет результат"];
+admin [shape=plaintext, label="Администратор\nуправляет справочниками\nи параметрами"];
+subgraph cluster_app {
+ label="Интеллектуальный сервис классификации обращений"; style="rounded"; color="#52606D"; penwidth=1.5; fontsize=14;
+ web [label="Web-интерфейс\nФормы, карточка, очередь\n[Frontend]", fillcolor="#E8F5E9"];
+ api [label="Backend API\nПроверка доступа,\nвалидация, бизнес-правила", fillcolor="#E8F5E9"];
+ ml [label="Модуль анализа текста\nПредобработка + inference\nКатегория, confidence, top-k", fillcolor="#EAF2FF"];
+ routing [label="Модуль маршрутизации\nПорог τ + правила\nкатегория → очередь", fillcolor="#FFF4D6"];
+ db [shape=cylinder, label="PostgreSQL\nЗаявки, категории, назначения,\nпредсказания, аудит", fillcolor="#F3E8FF"];
+ artifacts [shape=cylinder, label="Хранилище артефактов\nВерсии моделей и метрики", fillcolor="#F3E8FF"];
+ web -> api [label="HTTPS / JSON"];
+ api -> ml [label="Текст после маскирования"];
+ ml -> artifacts [label="Загрузка версии модели"];
+ api -> routing [label="Категория + confidence"];
+ api -> db [label="CRUD / транзакции"];
+ routing -> db [label="Правило и запись назначения"];
+}
+requester -> web [label="HTTPS"];
+agent -> web [label="HTTPS"];
+admin -> web [label="HTTPS"];
+
+}

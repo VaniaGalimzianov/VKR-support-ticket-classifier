@@ -1,0 +1,33 @@
+
+digraph G {
+ graph [bgcolor="white", fontname="DejaVu Sans", fontsize=18, labelloc="t", label="Рисунок 5 — ER-модель. Основные сущности и связи базы данных", pad="0.35", nodesep="0.45", ranksep="0.85", splines=polyline];
+ node [shape=plain, fontname="DejaVu Sans", fontsize=11];
+ edge [fontname="DejaVu Sans", fontsize=10, color="#52606D", fontcolor="#344563", penwidth=1.2, arrowsize=0.75];
+ user [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#E8F5E9"><B>USER_ACCOUNT</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> id</TD></TR><TR><TD ALIGN="LEFT">email UNIQUE</TD></TR><TR><TD ALIGN="LEFT">display_name</TD></TR><TR><TD ALIGN="LEFT">role, is_active</TD></TR><TR><TD ALIGN="LEFT">password_hash</TD></TR></TABLE> >];
+ ticket [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#E8F5E9"><B>TICKET</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> requester_id → USER_ACCOUNT</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> current_category_id → CATEGORY (NULL)</TD></TR><TR><TD ALIGN="LEFT">text_original_encrypted (restricted)</TD></TR><TR><TD ALIGN="LEFT">text_for_model (masked)</TD></TR><TR><TD ALIGN="LEFT">idempotency_key UNIQUE</TD></TR><TR><TD ALIGN="LEFT">status, created_at, updated_at</TD></TR></TABLE> >];
+ category [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#FFF4D6"><B>CATEGORY</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> id</TD></TR><TR><TD ALIGN="LEFT">code UNIQUE</TD></TR><TR><TD ALIGN="LEFT">name, is_active</TD></TR></TABLE> >];
+ model [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#EAF2FF"><B>MODEL_VERSION</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> id</TD></TR><TR><TD ALIGN="LEFT">version UNIQUE</TD></TR><TR><TD ALIGN="LEFT">artifact_checksum</TD></TR><TR><TD ALIGN="LEFT">macro_f1, created_at</TD></TR></TABLE> >];
+ classification [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#EAF2FF"><B>CLASSIFICATION</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> ticket_id → TICKET</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> model_version_id → MODEL_VERSION</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> predicted_category_id → CATEGORY</TD></TR><TR><TD ALIGN="LEFT">confidence, threshold, top_k_json</TD></TR><TR><TD ALIGN="LEFT">created_at</TD></TR></TABLE> >];
+ queue [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#FFF4D6"><B>SUPPORT_QUEUE</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> id</TD></TR><TR><TD ALIGN="LEFT">code UNIQUE</TD></TR><TR><TD ALIGN="LEFT">name, is_active</TD></TR></TABLE> >];
+ rule [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#FFF4D6"><B>ROUTING_RULE</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> category_id → CATEGORY UNIQUE</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> queue_id → SUPPORT_QUEUE</TD></TR><TR><TD ALIGN="LEFT">is_active, updated_at</TD></TR></TABLE> >];
+ assignment [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#F3E8FF"><B>TICKET_ASSIGNMENT</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> ticket_id → TICKET</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> queue_id → SUPPORT_QUEUE</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> assigned_by → USER_ACCOUNT (NULL)</TD></TR><TR><TD ALIGN="LEFT">source, assigned_at</TD></TR></TABLE> >];
+ audit [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#F3E8FF"><B>AUDIT_EVENT</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK</B> id</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> ticket_id → TICKET (NULL)</TD></TR><TR><TD ALIGN="LEFT"><B>FK</B> actor_id → USER_ACCOUNT (NULL)</TD></TR><TR><TD ALIGN="LEFT">event_type, event_data</TD></TR><TR><TD ALIGN="LEFT">created_at</TD></TR></TABLE> >];
+ user_queue [label=< <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" COLOR="#52606D"><TR><TD BGCOLOR="#F3E8FF"><B>USER_QUEUE_ACCESS</B></TD></TR><TR><TD ALIGN="LEFT"><B>PK, FK</B> user_id → USER_ACCOUNT</TD></TR><TR><TD ALIGN="LEFT"><B>PK, FK</B> queue_id → SUPPORT_QUEUE</TD></TR><TR><TD ALIGN="LEFT">granted_at</TD></TR></TABLE> >];
+ user -> ticket [label="1 : 0..N\nсоздаёт"];
+ category -> ticket [label="1 : 0..N\nтекущая категория"];
+ ticket -> classification [label="1 : 0..N\nистория предсказаний"];
+ model -> classification [label="1 : 0..N\nиспользуется"];
+ category -> classification [label="1 : 0..N\nпредсказана"];
+ category -> rule [label="1 : 0..1\nправило"];
+ queue -> rule [label="1 : 0..N\nполучатель"];
+ ticket -> assignment [label="1 : 0..N\nистория назначений"];
+ queue -> assignment [label="1 : 0..N\nочередь"];
+ user -> assignment [label="1 : 0..N\nназначил"];
+ ticket -> audit [label="1 : 0..N\nсобытия"];
+ user -> audit [label="1 : 0..N\nавтор события"];
+ user -> user_queue [label="1 : 0..N\nправа на очереди"];
+ queue -> user_queue [label="1 : 0..N\nдоступная очередь"];
+ {rank=same; user; ticket; category;}
+ {rank=same; model; classification; queue;}
+ {rank=same; rule; assignment; audit;}
+}
